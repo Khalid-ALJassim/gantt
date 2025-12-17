@@ -14,6 +14,11 @@ export class DragDropHandler {
   private draggedElement: SVGGElement | null = null;
   private dragOffset = { x: 0, y: 0 };
   private onTaskUpdate?: (task: TaskInternal) => void;
+  
+  // Bound event handlers for proper cleanup
+  private boundHandleMouseDown: (event: MouseEvent) => void;
+  private boundHandleMouseMove: (event: MouseEvent) => void;
+  private boundHandleMouseUp: (event: MouseEvent) => void;
 
   constructor(
     svg: SVGSVGElement,
@@ -27,6 +32,12 @@ export class DragDropHandler {
     this.timelineRenderer = timelineRenderer;
     this.tasks = tasks;
     this.onTaskUpdate = onTaskUpdate;
+    
+    // Bind handlers once
+    this.boundHandleMouseDown = this.handleMouseDown.bind(this);
+    this.boundHandleMouseMove = this.handleMouseMove.bind(this);
+    this.boundHandleMouseUp = this.handleMouseUp.bind(this);
+    
     this.attachEventListeners();
   }
 
@@ -34,10 +45,10 @@ export class DragDropHandler {
    * Attach event listeners for drag and drop
    */
   private attachEventListeners(): void {
-    this.svg.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.svg.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.svg.addEventListener('mouseup', this.handleMouseUp.bind(this));
-    this.svg.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+    this.svg.addEventListener('mousedown', this.boundHandleMouseDown);
+    this.svg.addEventListener('mousemove', this.boundHandleMouseMove);
+    this.svg.addEventListener('mouseup', this.boundHandleMouseUp);
+    this.svg.addEventListener('mouseleave', this.boundHandleMouseUp);
   }
 
   /**
@@ -152,9 +163,9 @@ export class DragDropHandler {
    * Clean up event listeners
    */
   destroy(): void {
-    this.svg.removeEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.svg.removeEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.svg.removeEventListener('mouseup', this.handleMouseUp.bind(this));
-    this.svg.removeEventListener('mouseleave', this.handleMouseUp.bind(this));
+    this.svg.removeEventListener('mousedown', this.boundHandleMouseDown);
+    this.svg.removeEventListener('mousemove', this.boundHandleMouseMove);
+    this.svg.removeEventListener('mouseup', this.boundHandleMouseUp);
+    this.svg.removeEventListener('mouseleave', this.boundHandleMouseUp);
   }
 }

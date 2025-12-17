@@ -3,6 +3,16 @@ import { createSVGElement } from '../utils/svgUtils.js';
 import { TimelineRenderer } from './TimelineRenderer.js';
 
 /**
+ * Color configuration for task rendering
+ */
+interface TaskColors {
+  taskBar?: string;
+  taskBarHover?: string;
+  taskBarSelected?: string;
+  taskBarProgress?: string;
+}
+
+/**
  * Renders task bars
  */
 export class TaskRenderer {
@@ -20,7 +30,7 @@ export class TaskRenderer {
     timelineRenderer: TimelineRenderer,
     taskHeight: number = 30,
     taskPadding: number = 5,
-    colors?: any
+    colors?: TaskColors
   ) {
     this.timelineRenderer = timelineRenderer;
     this.taskHeight = taskHeight;
@@ -88,6 +98,7 @@ export class TaskRenderer {
         rx: 4,
         ry: 4,
         'pointer-events': 'none',
+        class: 'task-progress',
       });
       taskGroup.appendChild(progressRect);
     }
@@ -139,8 +150,8 @@ export class TaskRenderer {
       text.setAttribute('y', String(currentY + height / 2 + 5));
     }
 
-    const progressRect = taskElement.querySelector('rect:nth-child(2)') as SVGRectElement;
-    if (progressRect && progressRect.classList.contains('task-bar') === false) {
+    const progressRect = taskElement.querySelector('.task-progress') as SVGRectElement;
+    if (progressRect) {
       progressRect.setAttribute('x', String(x));
       progressRect.setAttribute('y', String(y));
     }

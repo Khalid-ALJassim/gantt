@@ -8,6 +8,9 @@ export class SelectionHandler {
   private tasks: TaskInternal[];
   private selectedTask: TaskInternal | null = null;
   private onTaskSelect?: (task: TaskInternal | null) => void;
+  
+  // Bound event handler for proper cleanup
+  private boundHandleClick: (event: MouseEvent) => void;
 
   constructor(
     svg: SVGSVGElement,
@@ -17,6 +20,10 @@ export class SelectionHandler {
     this.svg = svg;
     this.tasks = tasks;
     this.onTaskSelect = onTaskSelect;
+    
+    // Bind handler once
+    this.boundHandleClick = this.handleClick.bind(this);
+    
     this.attachEventListeners();
   }
 
@@ -24,7 +31,7 @@ export class SelectionHandler {
    * Attach event listeners for selection
    */
   private attachEventListeners(): void {
-    this.svg.addEventListener('click', this.handleClick.bind(this));
+    this.svg.addEventListener('click', this.boundHandleClick);
   }
 
   /**
@@ -101,6 +108,6 @@ export class SelectionHandler {
    * Clean up event listeners
    */
   destroy(): void {
-    this.svg.removeEventListener('click', this.handleClick.bind(this));
+    this.svg.removeEventListener('click', this.boundHandleClick);
   }
 }
