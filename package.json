@@ -1,0 +1,23 @@
+{
+  "name": "@gantt/core",
+  "version": "1.0.0",
+  "description": "In-house Gantt chart implementation without third-party charting libraries",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "example": "npx http-server . -p 8080 -o /examples/index.html"
+  },
+  "keywords": [
+    "gantt",
+    "chart",
+    "timeline",
+    "project-management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
