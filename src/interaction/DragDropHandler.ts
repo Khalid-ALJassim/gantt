@@ -1,6 +1,6 @@
-import { TaskInternal } from '../models/Task';
-import { TaskRenderer } from '../rendering/TaskRenderer';
-import { TimelineRenderer } from '../rendering/TimelineRenderer';
+import { TaskInternal } from '../models/Task.js';
+import { TaskRenderer } from '../rendering/TaskRenderer.js';
+import { TimelineRenderer } from '../rendering/TimelineRenderer.js';
 
 /**
  * Handles drag and drop interactions for tasks

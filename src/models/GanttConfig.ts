@@ -1,4 +1,4 @@
-import { TimelineConfig } from './Timeline';
+import { TimelineConfig } from './Timeline.js';
 
 /**
  * Configuration for the Gantt chart

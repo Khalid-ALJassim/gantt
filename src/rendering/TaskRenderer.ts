@@ -1,6 +1,6 @@
-import { Task, TaskInternal } from '../models/Task';
-import { createSVGElement } from '../utils/svgUtils';
-import { TimelineRenderer } from './TimelineRenderer';
+import { Task, TaskInternal } from '../models/Task.js';
+import { createSVGElement } from '../utils/svgUtils.js';
+import { TimelineRenderer } from './TimelineRenderer.js';
 
 /**
  * Renders task bars

@@ -1,13 +1,13 @@
-import { GanttConfig } from './models/GanttConfig';
-import { Task, TaskInternal } from './models/Task';
-import { TaskDependency, TimelineScale } from './models/Timeline';
-import { TimelineRenderer } from './rendering/TimelineRenderer';
-import { TaskRenderer } from './rendering/TaskRenderer';
-import { DependencyRenderer } from './rendering/DependencyRenderer';
-import { DragDropHandler } from './interaction/DragDropHandler';
-import { SelectionHandler } from './interaction/SelectionHandler';
-import { createSVGElement, clearElement } from './utils/svgUtils';
-import { daysBetween } from './utils/dateUtils';
+import { GanttConfig } from './models/GanttConfig.js';
+import { Task, TaskInternal } from './models/Task.js';
+import { TaskDependency, TimelineScale } from './models/Timeline.js';
+import { TimelineRenderer } from './rendering/TimelineRenderer.js';
+import { TaskRenderer } from './rendering/TaskRenderer.js';
+import { DependencyRenderer } from './rendering/DependencyRenderer.js';
+import { DragDropHandler } from './interaction/DragDropHandler.js';
+import { SelectionHandler } from './interaction/SelectionHandler.js';
+import { createSVGElement, clearElement } from './utils/svgUtils.js';
+import { daysBetween } from './utils/dateUtils.js';
 
 /**
  * Main Gantt Chart class

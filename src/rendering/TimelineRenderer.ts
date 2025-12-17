@@ -1,6 +1,6 @@
-import { TimelineConfig, TimelineScale } from '../models/Timeline';
-import { createSVGElement } from '../utils/svgUtils';
-import { addDays, formatDate } from '../utils/dateUtils';
+import { TimelineConfig, TimelineScale } from '../models/Timeline.js';
+import { createSVGElement } from '../utils/svgUtils.js';
+import { addDays, formatDate } from '../utils/dateUtils.js';
 
 /**
  * Renders the timeline (header with dates and grid)

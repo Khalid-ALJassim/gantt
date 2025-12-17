@@ -1,4 +1,4 @@
-import { TaskInternal } from '../models/Task';
+import { TaskInternal } from '../models/Task.js';
 
 /**
  * Handles task selection interactions

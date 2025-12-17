@@ -1,6 +1,6 @@
-import { TaskDependency } from '../models/Timeline';
-import { TaskInternal } from '../models/Task';
-import { createSVGElement } from '../utils/svgUtils';
+import { TaskDependency } from '../models/Timeline.js';
+import { TaskInternal } from '../models/Task.js';
+import { createSVGElement } from '../utils/svgUtils.js';
 
 /**
  * Renders dependency arrows between tasks

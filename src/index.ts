@@ -5,7 +5,7 @@
  * Provides full control over rendering, interactions, and data management.
  */
 
-export { GanttChart } from './GanttChart';
-export { Task, TaskInternal } from './models/Task';
-export { TimelineScale, TimelineConfig, TaskDependency } from './models/Timeline';
-export { GanttConfig } from './models/GanttConfig';
+export { GanttChart } from './GanttChart.js';
+export { Task, TaskInternal } from './models/Task.js';
+export { TimelineScale, TimelineConfig, TaskDependency } from './models/Timeline.js';
+export { GanttConfig } from './models/GanttConfig.js';
