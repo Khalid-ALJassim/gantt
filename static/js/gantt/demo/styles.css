@@ -1,0 +1,211 @@
+/**
+ * Styles for the Gantt scheduler demo
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+.demo-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.demo-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.demo-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.demo-header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.demo-toolbar {
+  background: white;
+  padding: 12px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+}
+
+.toolbar-button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.toolbar-button:hover {
+  background: #f5f5f5;
+  border-color: #999;
+}
+
+.toolbar-button:active {
+  background: #e0e0e0;
+}
+
+.toolbar-button.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: #e0e0e0;
+}
+
+.gantt-container {
+  flex: 1;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-bar {
+  background: #fafafa;
+  padding: 8px 20px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-badge {
+  background: #667eea;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Gantt tooltip custom styles */
+.gantt-tooltip {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .demo-header h1 {
+    font-size: 20px;
+  }
+  
+  .demo-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .toolbar-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Selection info panel */
+.selection-info {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+  max-width: 200px;
+  display: none;
+}
+
+.selection-info.visible {
+  display: block;
+}
+
+.selection-info h3 {
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.selection-info ul {
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.selection-info li {
+  padding: 4px 0;
+  color: #666;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.selection-info li:last-child {
+  border-bottom: none;
+}

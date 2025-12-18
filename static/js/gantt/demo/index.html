@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Gantt Scheduler - Proof of Concept</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="demo-container">
+    <!-- Header -->
+    <div class="demo-header">
+      <h1>Custom Gantt Scheduler POC</h1>
+      <p>Zero dependencies • Pure JavaScript • Canvas-based rendering</p>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="demo-toolbar">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Zoom:</span>
+        <button class="toolbar-button" id="zoom-1w">1 Week</button>
+        <button class="toolbar-button" id="zoom-1m">1 Month</button>
+        <button class="toolbar-button active" id="zoom-3m">3 Months</button>
+        <button class="toolbar-button" id="zoom-all">View All</button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <button class="toolbar-button" id="clear-selection">Clear Selection</button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-group">
+        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="toggle-editing" checked>
+          <span style="font-size: 13px;">Enable Drag & Drop</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Gantt Chart Container -->
+    <div class="gantt-container" id="gantt-container">
+      <div class="loading-spinner" id="loading">
+        <div class="spinner"></div>
+        <div>Loading scheduler...</div>
+      </div>
+    </div>
+
+    <!-- Selection Info Panel -->
+    <div class="selection-info" id="selection-info">
+      <h3>Selected Jobs</h3>
+      <ul id="selection-list"></ul>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-item">
+        <span>Total Jobs:</span>
+        <span class="status-badge" id="total-jobs">0</span>
+      </div>
+      <div class="status-item">
+        <span>Selected:</span>
+        <span class="status-badge" id="selected-count">0</span>
+      </div>
+      <div class="status-item" id="last-action">
+        Ready
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { GanttScheduler } from '../poc/gantt-scheduler.js';
+    import { DEMO_DATA } from './sample-data.js';
+
+    // Initialize scheduler
+    let scheduler;
+    
+    function initScheduler() {
+      const container = document.getElementById('gantt-container');
+      const loading = document.getElementById('loading');
+      
+      try {
+        // Create scheduler instance
+        scheduler = new GanttScheduler(container, {
+          editing: document.getElementById('toggle-editing').checked
+        });
+        
+        // Set data
+        scheduler.setData(DEMO_DATA);
+        
+        // Hide loading
+        loading.style.display = 'none';
+        
+        // Update status
+        updateStatus();
+        
+        // Setup event listeners
+        setupEventListeners();
+        
+        console.log('Gantt scheduler initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize scheduler:', error);
+        loading.innerHTML = `
+          <div style="color: red;">
+            <strong>Error:</strong> ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    function setupEventListeners() {
+      // Zoom controls
+      document.getElementById('zoom-1w').addEventListener('click', () => {
+        scheduler.zoomTo('1w');
+        setActiveZoom('zoom-1w');
+        logAction('Zoomed to 1 week view');
+      });
+      
+      document.getElementById('zoom-1m').addEventListener('click', () => {
+        scheduler.zoomTo('1m');
+        setActiveZoom('zoom-1m');
+        logAction('Zoomed to 1 month view');
+      });
+      
+      document.getElementById('zoom-3m').addEventListener('click', () => {
+        scheduler.zoomTo('3m');
+        setActiveZoom('zoom-3m');
+        logAction('Zoomed to 3 months view');
+      });
+      
+      document.getElementById('zoom-all').addEventListener('click', () => {
+        scheduler.zoomTo('all');
+        setActiveZoom('zoom-all');
+        logAction('Zoomed to view all jobs');
+      });
+      
+      // Clear selection
+      document.getElementById('clear-selection').addEventListener('click', () => {
+        scheduler.selection.clearSelection();
+        logAction('Selection cleared');
+      });
+      
+      // Toggle editing
+      document.getElementById('toggle-editing').addEventListener('change', (e) => {
+        scheduler.options.editing = e.target.checked;
+        logAction(e.target.checked ? 'Editing enabled' : 'Editing disabled');
+      });
+      
+      // Listen for selection changes
+      scheduler.container.addEventListener('gantt-selection-changed', (e) => {
+        updateSelectionInfo(e.detail);
+        updateStatus();
+      });
+      
+      // Listen for job drops
+      scheduler.container.addEventListener('gantt-job-dropped', (e) => {
+        const detail = e.detail;
+        logAction(`Job ${detail.jobId} moved to ${detail.targetResource}`);
+        console.log('Job dropped:', detail);
+      });
+    }
+
+    function setActiveZoom(buttonId) {
+      document.querySelectorAll('.toolbar-button').forEach(btn => {
+        if (btn.id.startsWith('zoom-')) {
+          btn.classList.remove('active');
+        }
+      });
+      document.getElementById(buttonId).classList.add('active');
+    }
+
+    function updateSelectionInfo(selectedJobs) {
+      const panel = document.getElementById('selection-info');
+      const list = document.getElementById('selection-list');
+      
+      if (selectedJobs.length === 0) {
+        panel.classList.remove('visible');
+        return;
+      }
+      
+      panel.classList.add('visible');
+      list.innerHTML = selectedJobs.map(jobId => `<li>${jobId}</li>`).join('');
+    }
+
+    function updateStatus() {
+      document.getElementById('total-jobs').textContent = DEMO_DATA.jobs.length;
+      
+      const selectedJobs = scheduler ? scheduler.getSelectedJobs() : [];
+      document.getElementById('selected-count').textContent = selectedJobs.length;
+    }
+
+    function logAction(message) {
+      const actionEl = document.getElementById('last-action');
+      actionEl.textContent = message;
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        actionEl.textContent = 'Ready';
+      }, 3000);
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScheduler);
+    } else {
+      initScheduler();
+    }
+  </script>
+</body>
+</html>
