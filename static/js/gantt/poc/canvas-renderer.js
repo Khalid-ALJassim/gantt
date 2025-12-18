@@ -80,17 +80,17 @@ export class CanvasRenderer {
     // Draw grid
     this.drawGrid();
     
-    // Draw timeline
-    this.drawTimeline();
-    
-    // Draw resources
-    this.drawResources(data.resources);
+    // Draw jobs first (so they appear behind resources)
+    this.drawJobs(data.jobs, data.resources);
     
     // Draw current date indicator
     this.drawCurrentDateIndicator();
     
-    // Draw jobs
-    this.drawJobs(data.jobs, data.resources);
+    // Draw timeline on top
+    this.drawTimeline();
+    
+    // Draw resources on top (so labels are visible)
+    this.drawResources(data.resources);
   }
 
   /**
@@ -236,9 +236,22 @@ export class CanvasRenderer {
    * @param {Array<string>} resources - Array of resource names
    */
   drawJobs(jobs, resources) {
+    // Draw non-dragging jobs first
+    const draggedJobId = this.stateManager.dragState?.jobId;
+    
     jobs.forEach(job => {
-      this.drawJob(job, resources);
+      if (job.id !== draggedJobId) {
+        this.drawJob(job, resources);
+      }
     });
+    
+    // Draw dragged job last (on top)
+    if (draggedJobId) {
+      const draggedJob = jobs.find(j => j.id === draggedJobId);
+      if (draggedJob) {
+        this.drawJob(draggedJob, resources);
+      }
+    }
   }
 
   /**

@@ -44,6 +44,12 @@ export class GanttScheduler {
       viewEnd: Date.now() + (90 * 24 * 60 * 60 * 1000)    // 90 days ahead
     };
     
+    // Pan state
+    this.isPanning = false;
+    this.panStartX = 0;
+    this.panStartViewStart = 0;
+    this.panStartViewEnd = 0;
+    
     // Initialize
     this.init();
   }
@@ -168,6 +174,16 @@ export class GanttScheduler {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
+    // Check for pan mode (Shift+Click on chart area)
+    if (event.shiftKey && x > this.timeline.leftMargin && y > this.timeline.topMargin) {
+      this.isPanning = true;
+      this.panStartX = event.clientX;
+      this.panStartViewStart = this.timeline.viewStart;
+      this.panStartViewEnd = this.timeline.viewEnd;
+      this.canvas.style.cursor = 'grabbing';
+      return;
+    }
+    
     // Check for resource click
     const resource = this.renderer.getResourceAt(x, y);
     if (resource) {
@@ -203,10 +219,51 @@ export class GanttScheduler {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
+    // Handle panning
+    if (this.isPanning) {
+      const deltaX = event.clientX - this.panStartX;
+      const deltaTime = -deltaX * this.timeline.msPerPixel;
+      
+      this.timeline.viewStart = this.panStartViewStart + deltaTime;
+      this.timeline.viewEnd = this.panStartViewEnd + deltaTime;
+      
+      // Apply pan limits based on job dates
+      if (this.data.jobs.length > 0) {
+        const allStarts = this.data.jobs.map(j => j.start);
+        const allEnds = this.data.jobs.map(j => j.end);
+        const minDate = Math.min(...allStarts);
+        const maxDate = Math.max(...allEnds);
+        const padding = (maxDate - minDate) * 0.2;
+        
+        // Limit panning to reasonable range
+        if (this.timeline.viewStart < minDate - padding) {
+          const diff = this.timeline.viewEnd - this.timeline.viewStart;
+          this.timeline.viewStart = minDate - padding;
+          this.timeline.viewEnd = this.timeline.viewStart + diff;
+        }
+        if (this.timeline.viewEnd > maxDate + padding) {
+          const diff = this.timeline.viewEnd - this.timeline.viewStart;
+          this.timeline.viewEnd = maxDate + padding;
+          this.timeline.viewStart = this.timeline.viewEnd - diff;
+        }
+      }
+      
+      this.timeline.updateScale();
+      this.render();
+      return;
+    }
+    
     // Handle drag
     if (this.dragDrop.isDraggingActive()) {
       this.dragDrop.onMouseMove(event);
       this.render();
+      return;
+    }
+    
+    // Update cursor based on Shift key and position
+    if (event.shiftKey && x > this.timeline.leftMargin && y > this.timeline.topMargin) {
+      this.canvas.style.cursor = 'grab';
+      this.tooltip.hide();
       return;
     }
     
@@ -228,6 +285,12 @@ export class GanttScheduler {
    * @param {MouseEvent} event - Mouse event
    */
   onMouseUp(event) {
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.canvas.style.cursor = 'default';
+      return;
+    }
+    
     if (this.dragDrop.isDraggingActive()) {
       this.dragDrop.onMouseUp(event);
     }
@@ -239,6 +302,12 @@ export class GanttScheduler {
    */
   onMouseLeave(event) {
     this.tooltip.hide();
+    
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.canvas.style.cursor = 'default';
+    }
+    
     if (this.dragDrop.isDraggingActive()) {
       this.dragDrop.cancelDrag();
       this.render();
@@ -293,6 +362,39 @@ export class GanttScheduler {
       event.preventDefault();
       this.selection.selectAll();
     }
+    
+    // Arrow keys for panning
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      const panAmount = (this.timeline.viewEnd - this.timeline.viewStart) * 0.1;
+      const direction = event.key === 'ArrowLeft' ? -1 : 1;
+      
+      this.timeline.viewStart += direction * panAmount;
+      this.timeline.viewEnd += direction * panAmount;
+      
+      // Apply pan limits
+      if (this.data.jobs.length > 0) {
+        const allStarts = this.data.jobs.map(j => j.start);
+        const allEnds = this.data.jobs.map(j => j.end);
+        const minDate = Math.min(...allStarts);
+        const maxDate = Math.max(...allEnds);
+        const padding = (maxDate - minDate) * 0.2;
+        
+        if (this.timeline.viewStart < minDate - padding) {
+          const diff = this.timeline.viewEnd - this.timeline.viewStart;
+          this.timeline.viewStart = minDate - padding;
+          this.timeline.viewEnd = this.timeline.viewStart + diff;
+        }
+        if (this.timeline.viewEnd > maxDate + padding) {
+          const diff = this.timeline.viewEnd - this.timeline.viewStart;
+          this.timeline.viewEnd = maxDate + padding;
+          this.timeline.viewStart = this.timeline.viewEnd - diff;
+        }
+      }
+      
+      this.timeline.updateScale();
+      this.render();
+    }
   }
 
   /**
@@ -342,16 +444,19 @@ export class GanttScheduler {
     
     switch (range) {
       case '1w':
-        viewStart = now - (3 * 24 * 60 * 60 * 1000);
-        viewEnd = now + (4 * 24 * 60 * 60 * 1000);
+        // Start from now, show 1 week ahead
+        viewStart = now;
+        viewEnd = now + (7 * 24 * 60 * 60 * 1000);
         break;
       case '1m':
-        viewStart = now - (15 * 24 * 60 * 60 * 1000);
-        viewEnd = now + (15 * 24 * 60 * 60 * 1000);
+        // Start from now, show 1 month ahead
+        viewStart = now;
+        viewEnd = now + (30 * 24 * 60 * 60 * 1000);
         break;
       case '3m':
-        viewStart = now - (45 * 24 * 60 * 60 * 1000);
-        viewEnd = now + (45 * 24 * 60 * 60 * 1000);
+        // Start from now, show 3 months ahead
+        viewStart = now;
+        viewEnd = now + (90 * 24 * 60 * 60 * 1000);
         break;
       case 'all':
         if (this.data.jobs.length > 0) {
@@ -365,7 +470,7 @@ export class GanttScheduler {
           viewStart -= padding;
           viewEnd += padding;
         } else {
-          viewStart = now - (90 * 24 * 60 * 60 * 1000);
+          viewStart = now;
           viewEnd = now + (90 * 24 * 60 * 60 * 1000);
         }
         break;
