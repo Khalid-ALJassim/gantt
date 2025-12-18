@@ -66,6 +66,12 @@ export class GanttScheduler {
     this.width = rect.width;
     this.height = rect.height;
     
+    // Set canvas size explicitly
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
+    this.canvas.style.width = `${this.width}px`;
+    this.canvas.style.height = `${this.height}px`;
+    
     // Initialize subsystems
     this.stateManager = new StateManager();
     
