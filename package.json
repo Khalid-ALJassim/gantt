@@ -1,0 +1,20 @@
+{
+  "name": "gantt-scheduler",
+  "version": "1.0.0",
+  "description": "Apache ECharts-based Gantt Scheduler for Dash",
+  "main": "static/js/gantt/render_schedule_echarts.js",
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "gantt",
+    "echarts",
+    "scheduler",
+    "dash"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "echarts": "^5.4.3"
+  }
+}
