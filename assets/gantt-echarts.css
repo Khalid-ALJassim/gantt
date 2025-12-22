@@ -1,0 +1,185 @@
+/**
+ * Gantt ECharts Scheduler Styles
+ */
+
+.gantt-container {
+    width: 100%;
+    height: 600px;
+    position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+.gantt-zoom-controls {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.gantt-zoom-btn,
+.gantt-export-btn {
+    padding: 6px 12px;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+    color: #333333;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.gantt-zoom-btn:hover,
+.gantt-export-btn:hover {
+    background: #f5f5f5;
+    border-color: #b0b0b0;
+}
+
+.gantt-zoom-btn:active,
+.gantt-export-btn:active {
+    background: #e8e8e8;
+    transform: translateY(1px);
+}
+
+.gantt-zoom-btn.active {
+    background: #5470c6;
+    color: #ffffff;
+    border-color: #5470c6;
+}
+
+/* Tooltip styles */
+.gantt-tooltip {
+    background: rgba(50, 50, 50, 0.95);
+    color: #ffffff;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gantt-tooltip strong {
+    font-weight: 600;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 6px;
+    color: #ffffff;
+}
+
+/* Job bar styles */
+.gantt-job-bar {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.gantt-job-bar:hover {
+    opacity: 0.85;
+}
+
+.gantt-job-bar.selected {
+    box-shadow: 0 0 0 2px #000000;
+}
+
+.gantt-job-bar.dragging {
+    opacity: 0.6;
+    cursor: move;
+}
+
+/* Resource label styles */
+.gantt-resource-label {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.gantt-resource-label:hover {
+    color: #5470c6;
+    text-decoration: underline;
+}
+
+.gantt-resource-label.selected {
+    color: #5470c6;
+    font-weight: 600;
+}
+
+/* Current date indicator */
+.gantt-current-date {
+    pointer-events: none;
+}
+
+/* Navigator styles */
+.gantt-navigator {
+    background: #f8f8f8;
+    border-top: 1px solid #e0e0e0;
+    padding: 5px 0;
+}
+
+/* Loading state */
+.gantt-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #666666;
+}
+
+.gantt-loading::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 10px auto;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #5470c6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.gantt-empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #999999;
+    font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .gantt-container {
+        height: 400px;
+    }
+    
+    .gantt-zoom-controls {
+        flex-wrap: wrap;
+    }
+    
+    .gantt-zoom-btn,
+    .gantt-export-btn {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .gantt-zoom-controls {
+        display: none;
+    }
+    
+    .gantt-container {
+        border: none;
+        page-break-inside: avoid;
+    }
+}
