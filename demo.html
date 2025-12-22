@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECharts Gantt Scheduler Demo</title>
+  
+  <!-- ECharts Library -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  
+  <!-- Gantt Styles -->
+  <link rel="stylesheet" href="static/js/gantt/styles/gantt-echarts.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f3f4f6;
+      padding: 20px;
+    }
+    
+    .demo-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .demo-header {
+      background-color: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      color: #6b7280;
+    }
+    
+    .demo-chart {
+      background-color: #ffffff;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    #gantt-chart {
+      width: 100%;
+      height: 600px;
+    }
+    
+    .demo-controls {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .control-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .control-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    button {
+      padding: 8px 16px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+    
+    button:hover {
+      background-color: #2563eb;
+    }
+    
+    button:active {
+      transform: scale(0.98);
+    }
+    
+    button.secondary {
+      background-color: #6b7280;
+    }
+    
+    button.secondary:hover {
+      background-color: #4b5563;
+    }
+    
+    .demo-info {
+      background-color: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-list {
+      list-style-type: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    .feature-list li {
+      padding: 8px 12px;
+      background-color: #f3f4f6;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #374151;
+    }
+    
+    .feature-list li::before {
+      content: "✓ ";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1>ECharts Gantt Scheduler Demo</h1>
+      <p class="subtitle">Apache ECharts-based interactive Gantt chart with drag &amp; drop, selection, and zoom</p>
+    </div>
+    
+    <div class="demo-chart">
+      <div class="demo-controls">
+        <div class="control-group">
+          <span class="control-label">Zoom:</span>
+          <button onclick="setZoom('1w')">1 Week</button>
+          <button onclick="setZoom('1m')">1 Month</button>
+          <button onclick="setZoom('3m')">3 Months</button>
+          <button onclick="setZoom('all')">All</button>
+        </div>
+        <div class="control-group">
+          <button class="secondary" onclick="clearSelection()">Clear Selection</button>
+          <button class="secondary" onclick="exportChart()">Export PNG</button>
+        </div>
+      </div>
+      
+      <div id="gantt-chart"></div>
+    </div>
+    
+    <div class="demo-info">
+      <h2 style="margin-bottom: 16px; color: #111827;">Features</h2>
+      <ul class="feature-list">
+        <li>Drag jobs horizontally to reschedule</li>
+        <li>Drag jobs vertically to reassign resources</li>
+        <li>Click jobs to select/deselect</li>
+        <li>Click resource labels to select all future jobs</li>
+        <li>Auto-resequencing: jobs are consecutive with no gaps</li>
+        <li>Mouse wheel to zoom timeline</li>
+        <li>Shift + drag to pan</li>
+        <li>Rich tooltips on hover</li>
+        <li>Export to PNG, JPEG, or SVG</li>
+        <li>Responsive and print-friendly</li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- Load ECharts Gantt modules as ES modules -->
+  <script type="module">
+    import { GanttECharts } from './static/js/gantt/echarts/gantt-echarts.js';
+    
+    // Sample data
+    const sampleJobs = [
+      {
+        id: 'WO-001',
+        name: 'Site Preparation',
+        resource: 'GNDC-S1',
+        y: 0,
+        x: Date.now() - 5 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 10 * 24 * 60 * 60 * 1000,
+        color: '#3498db',
+        scope: 'Foundation Work',
+        team: 'TEAM-A',
+        location: 'Site-1',
+        duration: 15
+      },
+      {
+        id: 'WO-002',
+        name: 'Equipment Installation',
+        resource: 'GNDC-S1',
+        y: 0,
+        x: Date.now() + 10 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 25 * 24 * 60 * 60 * 1000,
+        color: '#e74c3c',
+        scope: 'Mechanical',
+        team: 'TEAM-B',
+        location: 'Site-1',
+        duration: 15
+      },
+      {
+        id: 'WO-003',
+        name: 'Structural Reinforcement',
+        resource: 'GNDC-S2',
+        y: 1,
+        x: Date.now() - 10 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 5 * 24 * 60 * 60 * 1000,
+        color: '#2ecc71',
+        scope: 'Structural',
+        team: 'TEAM-C',
+        location: 'Site-2',
+        duration: 15
+      },
+      {
+        id: 'WO-004',
+        name: 'Electrical Works',
+        resource: 'GNDC-S2',
+        y: 1,
+        x: Date.now() + 5 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 18 * 24 * 60 * 60 * 1000,
+        color: '#f39c12',
+        scope: 'Electrical',
+        team: 'TEAM-D',
+        location: 'Site-2',
+        duration: 13
+      },
+      {
+        id: 'WO-005',
+        name: 'Pipeline Inspection',
+        resource: 'ST-60',
+        y: 2,
+        x: Date.now() - 3 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 12 * 24 * 60 * 60 * 1000,
+        color: '#9b59b6',
+        scope: 'Inspection',
+        team: 'TEAM-A',
+        location: 'Site-3',
+        duration: 15
+      },
+      {
+        id: 'WO-006',
+        name: 'Valve Replacement',
+        resource: 'ST-60',
+        y: 2,
+        x: Date.now() + 12 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 20 * 24 * 60 * 60 * 1000,
+        color: '#1abc9c',
+        scope: 'Mechanical',
+        team: 'TEAM-B',
+        location: 'Site-3',
+        duration: 8
+      },
+      {
+        id: 'WO-007',
+        name: 'Painting & Coating',
+        resource: 'MR-45',
+        y: 3,
+        x: Date.now() + 2 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 15 * 24 * 60 * 60 * 1000,
+        color: '#e67e22',
+        scope: 'Surface Treatment',
+        team: 'TEAM-C',
+        location: 'Site-4',
+        duration: 13
+      },
+      {
+        id: 'WO-008',
+        name: 'Quality Testing',
+        resource: 'MR-45',
+        y: 3,
+        x: Date.now() + 15 * 24 * 60 * 60 * 1000,
+        x2: Date.now() + 22 * 24 * 60 * 60 * 1000,
+        color: '#34495e',
+        scope: 'Quality Control',
+        team: 'TEAM-D',
+        location: 'Site-4',
+        duration: 7
+      }
+    ];
+    
+    const resources = ['GNDC-S1', 'GNDC-S2', 'ST-60', 'MR-45'];
+    
+    // Initialize chart
+    const container = document.getElementById('gantt-chart');
+    const ganttChart = new GanttECharts(container, {
+      jobs: sampleJobs,
+      resources: resources,
+      editable: true,
+      secondLine: 'SCOPE',
+      thirdLine: ['TEAM', 'LOCATION'],
+      aioId: 'demo'
+    });
+    
+    // Make chart accessible globally for demo controls
+    window.ganttChart = ganttChart;
+    
+    // Demo control functions
+    window.setZoom = function(level) {
+      ganttChart.setZoomLevel(level);
+    };
+    
+    window.clearSelection = function() {
+      ganttChart.clearSelection();
+    };
+    
+    window.exportChart = function() {
+      const dataUrl = ganttChart.exportImage('png');
+      const link = document.createElement('a');
+      link.download = `gantt_demo_${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = dataUrl;
+      link.click();
+    };
+    
+    console.log('ECharts Gantt Demo initialized successfully!');
+  </script>
+</body>
+</html>
