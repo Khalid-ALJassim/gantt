@@ -8,7 +8,6 @@ JavaScript implementation, enabling seamless integration with Dash applications.
 from dash import dcc, html
 import dash
 from dash.dependencies import Input, Output, State
-import json
 
 
 class GanttScheduler(html.Div):
