@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gantt ECharts Scheduler - Standalone Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="../assets/gantt-echarts.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .demo-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        #gantt-chart {
+            width: 100%;
+            height: 700px;
+        }
+        
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .info-panel h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info-item {
+            padding: 8px;
+            background: #f8f8f8;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .info-item strong {
+            color: #5470c6;
+        }
+        
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 3px solid #5470c6;
+        }
+        
+        .feature-card h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗓️ Gantt ECharts Scheduler</h1>
+        <p class="description">
+            Complete, production-ready Gantt scheduler using Apache ECharts with full Dash integration support.
+            Features drag & drop, auto-resequencing, multiple zoom levels, and rich interactions.
+        </p>
+    </div>
+    
+    <div class="demo-container">
+        <div id="gantt-chart" class="gantt-container"></div>
+    </div>
+    
+    <div class="info-panel">
+        <h3>📊 Current Selection</h3>
+        <div id="selection-info">
+            <div class="info-item">
+                <strong>Selected Job:</strong> <span id="selected-job">None</span>
+            </div>
+            <div class="info-item">
+                <strong>Selected Resource:</strong> <span id="selected-resource">None</span>
+            </div>
+            <div class="info-item">
+                <strong>Last Drop:</strong> <span id="last-drop">None</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features-list">
+        <div class="feature-card">
+            <h4>🎯 Drag & Drop</h4>
+            <p>Click and drag job bars to move them. Jobs auto-resequence to eliminate gaps.</p>
+        </div>
+        <div class="feature-card">
+            <h4>📅 Multiple Zoom Levels</h4>
+            <p>Use zoom buttons (1w, 1m, 3m, All) to change the time range. Zooms from today.</p>
+        </div>
+        <div class="feature-card">
+            <h4>🖱️ Mouse Controls</h4>
+            <p>Mouse wheel to zoom, Shift+Drag to pan the timeline.</p>
+        </div>
+        <div class="feature-card">
+            <h4>📊 Resource Selection</h4>
+            <p>Click resource labels on Y-axis to select all future jobs on that resource.</p>
+        </div>
+        <div class="feature-card">
+            <h4>💾 Export</h4>
+            <p>Export your schedule to PNG or PDF using the export buttons.</p>
+        </div>
+        <div class="feature-card">
+            <h4>📍 Current Date Line</h4>
+            <p>Red line shows today's date on the timeline for easy reference.</p>
+        </div>
+    </div>
+    
+    <script src="../src/gantt-echarts.js"></script>
+    <script>
+        // Sample data for demonstration
+        const sampleResources = [
+            { id: 'resource1', name: 'Engineering Team' },
+            { id: 'resource2', name: 'Design Team' },
+            { id: 'resource3', name: 'Marketing Team' },
+            { id: 'resource4', name: 'Sales Team' },
+            { id: 'resource5', name: 'Operations Team' }
+        ];
+        
+        const today = new Date();
+        const sampleJobs = [
+            {
+                id: 'job1',
+                name: 'Frontend Development',
+                resource: 'resource1',
+                start: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000),
+                color: '#5470c6',
+                sequence: 1
+            },
+            {
+                id: 'job2',
+                name: 'Backend API',
+                resource: 'resource1',
+                start: new Date(today.getTime() + 8 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000),
+                color: '#91cc75',
+                sequence: 2
+            },
+            {
+                id: 'job3',
+                name: 'UI/UX Design',
+                resource: 'resource2',
+                start: new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000),
+                color: '#fac858',
+                sequence: 1
+            },
+            {
+                id: 'job4',
+                name: 'User Research',
+                resource: 'resource2',
+                start: new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000),
+                color: '#ee6666',
+                sequence: 2
+            },
+            {
+                id: 'job5',
+                name: 'Marketing Campaign',
+                resource: 'resource3',
+                start: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000),
+                color: '#73c0de',
+                sequence: 1
+            },
+            {
+                id: 'job6',
+                name: 'Content Creation',
+                resource: 'resource3',
+                start: new Date(today.getTime() - 10 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000),
+                color: '#3ba272',
+                sequence: 2
+            },
+            {
+                id: 'job7',
+                name: 'Sales Outreach',
+                resource: 'resource4',
+                start: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000),
+                color: '#fc8452',
+                sequence: 1
+            },
+            {
+                id: 'job8',
+                name: 'Lead Generation',
+                resource: 'resource4',
+                start: new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000),
+                color: '#9a60b4',
+                sequence: 2
+            },
+            {
+                id: 'job9',
+                name: 'Infrastructure Setup',
+                resource: 'resource5',
+                start: new Date(today.getTime() - 20 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000),
+                color: '#ea7ccc',
+                sequence: 1
+            },
+            {
+                id: 'job10',
+                name: 'Process Optimization',
+                resource: 'resource5',
+                start: new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000),
+                end: new Date(today.getTime() + 25 * 24 * 60 * 60 * 1000),
+                color: '#5470c6',
+                sequence: 2
+            }
+        ];
+        
+        // Initialize the Gantt scheduler
+        const gantt = new GanttEchartsScheduler('gantt-chart', {
+            colors: {
+                job: '#5470c6',
+                jobHover: '#7d93e8',
+                jobSelected: '#2f4f9f',
+                currentDate: '#ff0000',
+                gridLine: '#e0e0e0',
+                resourceLabel: '#333333'
+            },
+            barHeight: 30,
+            rowHeight: 50
+        });
+        
+        // Set data
+        gantt.setData(sampleJobs, sampleResources);
+        
+        // Setup demo UI updates
+        const originalSelectJob = gantt.selectJob.bind(gantt);
+        gantt.selectJob = function(job) {
+            originalSelectJob(job);
+            document.getElementById('selected-job').textContent = 
+                `${job.name} (${job.id}) - ${gantt.formatDate(job.start)} to ${gantt.formatDate(job.end)}`;
+        };
+        
+        const originalSelectResource = gantt.selectResource.bind(gantt);
+        gantt.selectResource = function(resource) {
+            originalSelectResource(resource);
+            const futureJobs = gantt.data.jobs.filter(job => 
+                job.resource === resource.id && job.start >= new Date()
+            );
+            document.getElementById('selected-resource').textContent = 
+                `${resource.name} (${resource.id}) - ${futureJobs.length} future jobs`;
+        };
+        
+        const originalHandleJobDrop = gantt.handleJobDrop.bind(gantt);
+        gantt.handleJobDrop = function(job, targetResource, newStartTime) {
+            originalHandleJobDrop(job, targetResource, newStartTime);
+            document.getElementById('last-drop').textContent = 
+                `${job.name} moved to ${targetResource.name} at ${gantt.formatDate(newStartTime)}`;
+        };
+        
+        console.log('Gantt scheduler initialized successfully!');
+        console.log('Try the following:');
+        console.log('- Click on job bars to select them');
+        console.log('- Drag job bars to move them');
+        console.log('- Click on resource labels to select all future jobs');
+        console.log('- Use zoom buttons to change time range');
+        console.log('- Mouse wheel to zoom, Shift+Drag to pan');
+        console.log('- Export to PNG or PDF');
+    </script>
+</body>
+</html>
